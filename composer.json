@@ -1,34 +1,45 @@
 {
-    "name": "acquia/drupal-recommended-project",
-    "description": "Acquia-compatible Drupal application based on the Drupal Recommended Project",
+    "name": "acquia/acquia_cms",
+    "type": "drupal-module",
+    "description": "An implementation of Drupal 9 for running custom, low code websites on the Acquia platform.",
+    "homepage": "https://github.com/acquia/acquia_cms",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
+            "name": "Michael Sherron",
+            "email": "michael.sherron@acquia.com",
+            "role": "Author"
+        },
+        {
             "name": "Acquia Engineering",
-            "homepage": "https://www.acquia.com",
+            "email": "engineering@acquia.org",
             "role": "Maintainer"
         }
     ],
     "require": {
-        "php": ">=8.1",
-        "acquia/acquia-cms-starterkit": "^1",
-        "acquia/drupal-environment-detector": "^1",
-        "acquia/memcache-settings": "^1",
-        "composer/installers": "^2.1",
-        "cweagans/composer-patches": "^1.6",
-        "drupal/core-composer-scaffold": "^10",
-        "drupal/core-recommended": "^10",
-        "drush/drush": "^11",
-        "oomphinc/composer-installers-extender": "^2"
+        "acquia/acquia-cms-starterkit": "^1.0",
+        "drupal/acquia_claro": "^1.3.4@alpha",
+        "drupal/acquia_cms_audio": "dev-develop",
+        "drupal/acquia_cms_component": "dev-develop",
+        "drupal/acquia_cms_dam": "dev-develop",
+        "drupal/acquia_cms_headless": "dev-develop",
+        "drupal/acquia_cms_site_studio": "dev-develop",
+        "drupal/acquia_cms_starter": "dev-develop",
+        "drupal/acquia_cms_toolbar": "dev-develop",
+        "drupal/acquia_cms_tour": "dev-develop",
+        "drush/drush": "^10 || ^11",
+        "mnsami/composer-custom-directory-installer": "^2.0"
     },
     "require-dev": {
-        "acquia/coding-standards": "^1.0.0",
-        "mglaman/phpstan-drupal": "^1.1",
-        "phpstan/extension-installer": "^1.1",
-        "phpstan/phpstan": "^1.6",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpunit/phpunit": "^9.5",
-        "squizlabs/php_codesniffer": "^3.6"
+        "acquia/coding-standards": "^1.0",
+        "axelerant/drupal-quality-checker": "^1.1",
+        "drupal/core-composer-scaffold": "^9.0.0 || ^10",
+        "drupal/core-dev": "^9 || ^10",
+        "ergebnis/composer-normalize": "~2.15.0",
+        "oomphinc/composer-installers-extender": "^1.1 || ^2",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpunit/phpunit": "~9.4.0 || ~9.5.0",
+        "weitzman/drupal-test-traits": "^2"
     },
     "config": {
         "allow-plugins": {
@@ -37,40 +48,44 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "drupal/core-composer-scaffold": true,
             "ergebnis/composer-normalize": true,
+            "mnsami/composer-custom-directory-installer": true,
             "oomphinc/composer-installers-extender": true,
-            "phpstan/extension-installer": true
+            "phpro/grumphp-shim": true,
+            "phpstan/extension-installer": true,
+            "webdriver-binary/binary-chromedriver": true
         },
-        "platform": {
-            "php": "8.1"
+        "preferred-install": {
+            "drupal/core": "dist"
         },
+        "process-timeout": 0,
         "sort-packages": true
     },
     "extra": {
-        "composer-exit-on-patch-failure": true,
         "drupal-scaffold": {
             "allowed-packages": [
-                "acquia/acquia_cms"
+                "drupal/core"
             ],
             "file-mapping": {
-                "[profile-root]/.editorconfig": false,
-                "[profile-root]/.gitattributes": false,
-                "[profile-root]/.travis.yml": false,
-                "[profile-root]/acquia-pipelines.yml": false,
-                "[web-root]/sites/default/default.services.yml": {
-                    "mode": "replace",
-                    "overwrite": false,
-                    "path": "docroot/core/assets/scaffold/files/default.services.yml"
-                },
+                "[project-root]/.editorconfig": false,
+                "[project-root]/.gitattributes": false,
+                "[web-root]/.csslintrc": false,
+                "[web-root]/INSTALL.txt": false,
+                "[web-root]/drush/drush.yml": "drush/drush.yml",
+                "[web-root]/example.gitignore": false,
+                "[web-root]/modules/README.txt": false,
+                "[web-root]/profiles/README.txt": false,
+                "[web-root]/robots.txt": false,
+                "[web-root]/sites/README.txt": false,
                 "[web-root]/sites/default/default.settings.php": {
-                    "mode": "replace",
-                    "overwrite": false,
-                    "path": "docroot/core/assets/scaffold/files/default.settings.php"
-                }
+                    "append": "./patches/d9-acms-settings.patch"
+                },
+                "[web-root]/themes/README.txt": false,
+                "[web-root]/themes/contrib/cohesion-theme/templates/maintenance-page.html.twig": "./patches/maintenance-page.patch",
+                "[web-root]/web.config": false
             },
-            "gitignore": true,
             "locations": {
-                "profile-root": "docroot/profiles/contrib/acquia_cms",
-                "web-root": "docroot/"
+                "project-root": ".",
+                "web-root": "./docroot"
             }
         },
         "enable-patching": true,
@@ -81,25 +96,18 @@
             "docroot/libraries/{$name}": [
                 "type:drupal-library",
                 "type:bower-asset",
-                "type:npm-asset"
+                "type:npm-asset",
+                "swagger-api/swagger-ui",
+                "nnnick/chartjs"
             ],
             "docroot/modules/contrib/{$name}": [
                 "type:drupal-module"
-            ],
-            "docroot/modules/custom/{$name}": [
-                "type:drupal-custom-module"
             ],
             "docroot/profiles/contrib/{$name}": [
                 "type:drupal-profile"
             ],
             "docroot/themes/contrib/{$name}": [
                 "type:drupal-theme"
-            ],
-            "docroot/themes/custom/{$name}": [
-                "type:drupal-custom-theme"
-            ],
-            "drush/Commands/contrib/{$name}": [
-                "type:drupal-drush"
             ]
         },
         "installer-types": [
@@ -109,9 +117,184 @@
         "patchLevel": {
             "drupal/core": "-p2"
         },
-        "patches": {}
+        "patches": {
+            "drupal/core": {
+                "3313342 - [PHP 8.1] Deprecated function: strpos(): Passing null to parameter #1 LayoutBuilderUiCacheContext.php on line 28": "https://git.drupalcode.org/project/drupal/-/merge_requests/3143.patch",
+                "3328187 - PHP Deprecated: strpos(): Passing null to parameter #1 ($haystack) of type string is deprecated in docroot/core/lib/Drupal/Core/Mail/Plugin/Mail/PhpMail.php on line 112": "https://git.drupalcode.org/project/drupal/-/merge_requests/3142.patch"
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Acquia\\Utility\\": "src/Utility"
+        },
+        "classmap": [
+            "src/Composer/ConfigureProject.php"
+        ]
     },
     "repositories": {
+        "acquia_cms_article": {
+            "type": "path",
+            "url": "./modules/acquia_cms_article",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_article": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_audio": {
+            "type": "path",
+            "url": "./modules/acquia_cms_audio",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_audio": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_common": {
+            "type": "path",
+            "url": "./modules/acquia_cms_common",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_common": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_component": {
+            "type": "path",
+            "url": "./modules/acquia_cms_component",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_component": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_dam": {
+            "type": "path",
+            "url": "./modules/acquia_cms_dam",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_dam": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_document": {
+            "type": "path",
+            "url": "./modules/acquia_cms_document",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_document": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_event": {
+            "type": "path",
+            "url": "./modules/acquia_cms_event",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_event": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_headless": {
+            "type": "path",
+            "url": "./modules/acquia_cms_headless",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_headless": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_image": {
+            "type": "path",
+            "url": "./modules/acquia_cms_image",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_image": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_page": {
+            "type": "path",
+            "url": "./modules/acquia_cms_page",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_page": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_person": {
+            "type": "path",
+            "url": "./modules/acquia_cms_person",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_person": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_place": {
+            "type": "path",
+            "url": "./modules/acquia_cms_place",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_place": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_search": {
+            "type": "path",
+            "url": "./modules/acquia_cms_search",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_search": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_site_studio": {
+            "type": "path",
+            "url": "./modules/acquia_cms_site_studio",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_site_studio": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_starter": {
+            "type": "path",
+            "url": "./modules/acquia_cms_starter",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_starter": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_toolbar": {
+            "type": "path",
+            "url": "./modules/acquia_cms_toolbar",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_toolbar": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_tour": {
+            "type": "path",
+            "url": "./modules/acquia_cms_tour",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_tour": "dev-develop"
+                }
+            }
+        },
+        "acquia_cms_video": {
+            "type": "path",
+            "url": "./modules/acquia_cms_video",
+            "options": {
+                "versions": {
+                    "drupal/acquia_cms_video": "dev-develop"
+                }
+            }
+        },
         "drupal": {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
@@ -120,12 +303,38 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
-        "acms:install": [
-            "Composer\\Config::disableProcessTimeout",
-            "./vendor/bin/acms acms:install"
+        "pre-update-cmd": [
+            "@putenv COMPOSER_MEMORY_LIMIT=2G"
         ],
-        "nuke": [
-            "rm -rf docroot vendor composer.lock"
-        ]
+        "post-update-cmd": [
+            "Composer\\Config::disableProcessTimeout",
+            "if [ \"$PIPELINE_ENV\" != \"true\" ]; then composer build:local; fi;"
+        ],
+        "acms:install": [
+            "bash install-acms"
+        ],
+        "build:frontend": [
+            "Composer\\Config::disableProcessTimeout",
+            "cd docroot/themes/contrib/acquia_claro && npm run build"
+        ],
+        "build:local": [
+            "@putenv MODULES_DIR=./docroot/modules/contrib",
+            "find $PWD/modules -name 'acquia_cms*' -type d -maxdepth 1 -exec ln -s -f '{}' $MODULES_DIR ';'",
+            "cp -f phpunit.xml ./docroot/core"
+        ],
+        "cohesion:fixture": [
+            "@putenv FILES_DIR=./docroot/sites/default/files",
+            "drush config:export --yes --quiet --destination $TMPDIR/cex",
+            "mkdir -p $FILES_DIR/cohesion/config",
+            "cp -f $TMPDIR/cex/cohesion_* $FILES_DIR/cohesion/config",
+            "tar -c -z -f ./tests/cohesion.tar.gz --directory $FILES_DIR cohesion",
+            "rm -rf $TMPDIR/cex"
+        ],
+        "configure-tarball": "Drupal\\acquia_cms\\Composer\\ConfigureProject::execute",
+        "install:frontend": [
+            "Composer\\Config::disableProcessTimeout",
+            "cd docroot/themes/contrib/acquia_claro && npm install"
+        ],
+        "nuke": "rm -r -f docroot vendor"
     }
 }
